@@ -146,6 +146,32 @@ LLI -> `Initial concentration in negative electrode`。
 
 ![LFP dQ/dV](results/dqdv_lfp_regions.png)
 
+### 5. LFP 1C 充电：2.5 V → 3.65 V
+
+`python src/charge_lfp.py`（Prada2013，1C = 2.3 A，C/20 无关，这里就是 1C 实倍率）：
+
+| 指标 | 值 |
+|---|---|
+| 充电区间 | 2.501 V → 3.650 V（精确停在 3.65 V 事件） |
+| 充电容量 | 2.2448 Ah |
+| 用时 | 3514 s（≈0.98 h） |
+| 充电 dQ/dV 峰 | 133.8 @ **3.339 V** |
+| 放电 dQ/dV 峰 | 136.6 @ **3.240 V** |
+| 充放峰位差 | **98 mV** |
+
+![LFP 1C 充电](results/charge_lfp_1C.png)
+
+**三个非直觉的点（都实测踩过）：**
+
+1. **PyBaMM 里正电流=放电，负电流=充电。** 写成正值会变成放电。
+2. **同一 SOC 的端电压取决于电流方向。** 静置 2.5 V 对应 SOC≈3.07%，
+   但挂上 1C 充电后端电压被过电位抬到 2.72 V；要在**充电过程中**起于 2.5 V，
+   SOC 得取 ≈1.56%。两者差 220 mV，就是 1C 的过电位。
+3. **充电容量 2.24 Ah ≠ 放电容量 1.88 Ah**，差的 16% 不是损失。
+   充电从 2.5 V 起（LFP 曲线的陡峭下端），只放掉一小截就上平台；
+   放电从满电起放到 2.5 V（同样到陡峭端）。两者跨度不同，
+   所以这两个数不能当库仑效率用。
+
 ---
 
 ## 已知限制（重要，别踩）
@@ -185,6 +211,7 @@ LLI -> `Initial concentration in negative electrode`。
 │   ├── pouch2d.py            # 软包 2D 面内不均匀性
 │   ├── dqdv_regions.py       # 区域化 LLI/LAM -> dQ/dV (LCO)
 │   ├── dqdv_lfp.py           # 同模型，LFP/石墨，非均匀性更直观
+│   ├── charge_lfp.py         # LFP 1C 充电 2.5->3.65 V + 充放 dQ/dV
 │   ├── polidemo_from_exe.py  # POLIDEMO 字节码加载器
 │   └── common.py             # 共用工具（输出目录、中文字体）
 ├── examples/
