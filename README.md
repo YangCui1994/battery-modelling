@@ -121,6 +121,31 @@ SPM 电压全程高 100–200 mV，**温度差 24 °C**（SPM 缺电解液欧姆
 
 ![dQ/dV](results/dqdv_regions.png)
 
+### 4. LFP/石墨：非均匀性让平台边缘峰被抹平
+
+换 LFP（Prada2013，LFP_ocp_Afshar2017）跑同一套分区模型。LFP 的电压平台极平
+（本参数集 **96.7% 容量挤在 3.15–3.35 V**），dQ/dV 是又高又窄的峰，非均匀性一眼可见。
+
+该电芯为**石墨限容**，两个杠杆的落点：
+LAM -> `Negative electrode active material volume fraction`；
+LLI -> `Initial concentration in negative electrode`。
+
+同样 **9% 平均容量损失**：
+
+| 场景 | 容量 | 峰高 | 峰宽 FWHM |
+|---|---|---|---|
+| 健康 | 1.1329 Ah | 30.32 | 0.0070 V |
+| 均匀 LLI 9% | 1.0270 Ah | 13.30 | 0.0154 V |
+| **LLI 分区 0/6/12/18%** | 1.0270 Ah | **8.09（再降 39%）** | **0.0906 V（6 倍）** |
+| 均匀 LAM 9% | 1.0293 Ah | 27.47 | 0.0070 V |
+| LAM 分区 0/6/12/18% | 1.0293 Ah | 26.81 | 0.0070 V |
+
+**结论**：容量完全相同，光看容量发现不了非均匀性。而且两种退化表现不同——
+非均匀 **LLI** 把峰抹平（39%、6 倍宽），非均匀 **LAM** 几乎不动（2.4%）。
+所以在 LFP 上"峰被抹平"更像是 **LLI 分布不均**的指纹，不是所有非均匀性的通用特征。
+
+![LFP dQ/dV](results/dqdv_lfp_regions.png)
+
 ---
 
 ## 已知限制（重要，别踩）
@@ -136,8 +161,9 @@ SPM 电压全程高 100–200 mV，**温度差 24 °C**（SPM 缺电解液欧姆
    调 `rtol/atol/dt_max/newton_mode` 都无效。用 `swelling only` 稳定。
 4. **dQ/dV 有两个独立问题，别混为一谈。**
    * **采样不足（数值问题）**：默认只输出 30–64 个点，直接微分全是毛刺。
-     解法是 `t_interp` 或稠密 `t_eval`，**与放电时长无关**——
-     把时长从 3600 s 缩到 60 s 只会让点数从 64 掉到 30，不会变多。
+     解法是调**时间步长** `dt_max`（或 `t_interp`/稠密 `t_eval`）。
+     `dt_max` 更省：同样平滑度下 0.54 s vs `t_eval=4000` 的 2.32 s。
+     注意这**与放电时长无关**——3600 s 缩到 60 s 只会让点数从 64 掉到 30。
    * **动力学畸变（物理问题）**：倍率越高，反应/传输过电位把 dQ/dV 峰压低、压偏。
      实测 1C→C/20，峰位偏移 **98 mV**，峰高从 9.96 变到 32.28（3.2 倍）。
      这个只能靠**降低倍率**解决，`t_interp` 救不了。
@@ -157,7 +183,8 @@ SPM 电压全程高 100–200 mV，**温度差 24 °C**（SPM 缺电解液欧姆
 │   ├── model_compare.py      # SPM/SPMe/DFN 对比
 │   ├── pybamm_aging.py       # 循环老化 SOH/LLI/LAM
 │   ├── pouch2d.py            # 软包 2D 面内不均匀性
-│   ├── dqdv_regions.py       # 区域化 LLI/LAM -> dQ/dV
+│   ├── dqdv_regions.py       # 区域化 LLI/LAM -> dQ/dV (LCO)
+│   ├── dqdv_lfp.py           # 同模型，LFP/石墨，非均匀性更直观
 │   ├── polidemo_from_exe.py  # POLIDEMO 字节码加载器
 │   └── common.py             # 共用工具（输出目录、中文字体）
 ├── examples/
