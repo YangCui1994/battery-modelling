@@ -159,7 +159,7 @@ SPM 电压全程高 100–200 mV，**温度差 24 °C**（SPM 缺电解液欧姆
 ├── docs/
 │   ├── README_PyBaMM.md      # 完整实验记录与踩坑清单
 │   ├── POLIDEMO实现剖析.md    # POLIDEMO 模型拆解
-│   └── ...                   # 论文 PDF、参数表
+│   └── polidemo_params_defaults.tsv  # POLIDEMO 默认参数表
 ├── results/                  # 运行产物（已提交，供 README 引用）
 ├── verify.py                 # 环境自检
 ├── requirements.txt          # 直接依赖
@@ -192,8 +192,13 @@ POLIDEMO_EXE=/path/to/POLIDEMO.exe python src/polidemo_from_exe.py
   J. Open Research Software, 9(1), 14.
 - Marquis et al. (2019). *An asymptotic derivation of a single particle model with
   electrolyte and thermal effects*. J. Electrochem. Soc., 166(15), A3693.
-- 以及 `docs/` 内的 POLIDEMO 原始论文。
+- POLIDEMO: *Applied Energy* **404** (2026) 126744.
+  （原始论文请通过期刊获取；本仓库不再附带 PDF，仅提供加载器与参数表。）
 
 ## License
 
-MIT —— 见 [LICENSE](LICENSE)。`POLIDEMO-windows/` 内的第三方二进制不适用本许可。
+MIT —— 见 [LICENSE](LICENSE)。
+
+本仓库**不包含**任何第三方论文全文或二进制：
+`POLIDEMO-windows/` 不入库，论文 PDF 已移除。`docs/polidemo_params_defaults.tsv`
+是从 POLIDEMO 提取的参数表，仅用于复现对照，版权归原作者。

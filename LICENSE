@@ -23,6 +23,7 @@ SOFTWARE.
 ---
 
 Third-party note: this repository contains a loader for POLIDEMO (a
-third-party tool). POLIDEMO binaries are not distributed here and are not
-covered by this license. The article PDF under docs/ is included for
-reference only; all rights remain with its authors.
+third-party tool). POLIDEMO binaries and the original article are NOT
+distributed here, and neither is covered by this license. The parameter
+table under docs/ is included for reproducibility only; all rights remain
+with its original authors.
