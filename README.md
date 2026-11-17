@@ -177,6 +177,27 @@ LLI -> `Initial concentration in negative electrode`。
 
 ![LFP 1C 循环](results/cycle_lfp_1C.png)
 
+### 7. 空间不均匀性模式对比 → [HTML 报告](reports/lfp_inhomogeneity_report.html)
+
+`python src/uneven_lfp.py` 固定平均退化量（LLI/LAM 各 5%），只改变 5 个区域的
+分布形状，看 dQ/dV 如何变化：
+
+| 模式 | 放电容量 | 放电峰 | 相对均匀 | FWHM | 各区峰位跨度 |
+|---|---|---|---|---|---|
+| 均匀 | 1.6553 Ah | 92.1 | +0% | 4.2 mV | 0.0 mV |
+| **线性梯度** | 1.6583 Ah | **61.4** | **−33%** | 6.8 mV | 4.2 mV |
+| 随机散布 | 1.6682 Ah | 73.0 | −21% | 5.1 mV | 8.1 mV |
+| 局部热点 | 1.6801 Ah | 97.0 | +5% | 3.4 mV | 12.3 mV |
+
+**容量只差 1.5%，峰高差 33%。** 但真正决定峰形的不是"是否不均匀"，
+而是**多少个区域处于相同状态**：梯度型 5 个区各不相同 → 叠加后被压平；
+局部热点 4 个健康区完全一致 → 峰相干叠加，反而保持锐利。
+
+> 关键提醒：各区峰位只移动约 12 mV，**没有出现真正的峰分裂**。
+> 本模型中退化主要表现为容量缩放，不改变峰位。报告里有完整讨论与局限。
+
+![不均匀性模式](results/uneven_lfp_patterns.png)
+
 **CE=100% 而 EE=92.99% 并不矛盾**：CE 只算电荷量，EE 还算电压。
 138 mV 的充放迟滞意味着每库仑电荷平均要多付 ~7% 的电压，能量就这样损失掉了。
 所以对 LFP，**能量效率远比库仑效率更有信息量**。
@@ -248,6 +269,8 @@ LLI -> `Initial concentration in negative electrode`。
 │   ├── dqdv_lfp.py           # 同模型，LFP/石墨，非均匀性更直观
 │   ├── charge_lfp.py         # LFP 1C 充电 2.5->3.65 V + 充放 dQ/dV
 │   ├── cycle_lfp.py          # LFP 1C 完整循环：CE / EE / dQ/dV 迟滞
+│   ├── uneven_lfp.py         # 4 种空间不均匀模式 -> dQ/dV
+│   └── make_report.py        # 生成 HTML 讨论报告
 │   ├── polidemo_from_exe.py  # POLIDEMO 字节码加载器
 │   └── common.py             # 共用工具（输出目录、中文字体）
 ├── examples/
@@ -256,6 +279,7 @@ LLI -> `Initial concentration in negative electrode`。
 │   ├── README_PyBaMM.md      # 完整实验记录与踩坑清单
 │   ├── POLIDEMO实现剖析.md    # POLIDEMO 模型拆解
 │   └── polidemo_params_defaults.tsv  # POLIDEMO 默认参数表
+├── reports/                  # HTML 讨论报告（单文件，图已内嵌）
 ├── results/                  # 运行产物（已提交，供 README 引用）
 ├── verify.py                 # 环境自检
 ├── requirements.txt          # 直接依赖
