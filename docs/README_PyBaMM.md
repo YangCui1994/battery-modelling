@@ -266,3 +266,25 @@ capped 跳跃，**没量化跳跃本身引入的偏差**。可以用 PyBaMM 做�
   对 POLIDEMO 的参数辨识有没有用？
 - 电芯尺度：`Basic3DThermalSPM` 要自建 `cell` 域网格才跑得起来，值不值得搭？
   或者用 2D `potential pair` + `x-lumped` 就够覆盖软包面内不均？
+
+## 附录：本机 git 推送说明（网络环境特定）
+
+本机全局 git 配置把 `github.com` 重写到 `gh-proxy.com`：
+
+```
+url.https://gh-proxy.com/https://github.com/.insteadof https://github.com/
+```
+
+该代理**不中继 git 的 smart-HTTP 协议**，所以 `git push` / `git ls-remote` 都会挂住。
+但本机有本地代理 `127.0.0.1:7890`，直连 github.com 是通的，因此推送命令为：
+
+```powershell
+$tok = (gh auth token).Trim()
+$url = "https://x-access-token:$tok@github.com/YangCui1994/battery-modelling.git"
+git -c credential.helper= `
+    -c http.proxy=http://127.0.0.1:7890 -c https.proxy=http://127.0.0.1:7890 `
+    push $url HEAD:refs/heads/main
+```
+
+> 注意：token 会出现在命令历史里。更干净的做法是临时删掉那条 `insteadof` 重写、
+> 直接用 `git push origin`，推完再恢复。

@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -30,6 +31,7 @@ def gh_api(args: list[str], data: dict | None = None) -> dict:
     tmp = None
     if data is not None:
         fd, tmp = tempfile.mkstemp(suffix=".json")
+        os.close(fd)                     # Windows: 必须先关掉裸 fd，否则文件被锁
         with open(tmp, "w", encoding="utf-8") as fh:
             json.dump(data, fh)
         cmd += ["--input", tmp]
@@ -37,7 +39,10 @@ def gh_api(args: list[str], data: dict | None = None) -> dict:
         proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     finally:
         if tmp:
-            Path(tmp).unlink(missing_ok=True)
+            try:
+                Path(tmp).unlink(missing_ok=True)
+            except PermissionError:
+                pass                     # 清理失败不影响推送结果
     if proc.returncode != 0:
         raise RuntimeError(f"gh api 失败: {' '.join(cmd[-3:])}\n{proc.stderr[:500]}")
     return json.loads(proc.stdout) if proc.stdout.strip() else {}
@@ -54,6 +59,22 @@ def commit_message() -> str:
     return msg or "Initial commit"
 
 
+def ensure_bootstrapped() -> None:
+    """空仓库不能建 blob（HTTP 409）。先用 Contents API 写入一个占位提交。"""
+    proc = subprocess.run(
+        ["gh", "api", f"/repos/{OWNER_REPO}/contents/.bootstrap"],
+        capture_output=True, text=True, encoding="utf-8",
+    )
+    if proc.returncode == 0:
+        return  # 仓库已有内容
+    content = base64.b64encode(b"bootstrap\n").decode("ascii")
+    gh_api(
+        [f"/repos/{OWNER_REPO}/contents/.bootstrap", "-X", "PUT"],
+        {"message": "Bootstrap repository", "content": content, "branch": BRANCH},
+    )
+    print("已用 Contents API 做引导提交")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true", help="真正推送（默认只预览）")
@@ -67,6 +88,8 @@ def main() -> int:
             print(f"  {f}")
         print("\n预览模式。加 --apply 真正推送。")
         return 0
+
+    ensure_bootstrapped()
 
     # 1) 每个文件建 blob
     tree_items = []
