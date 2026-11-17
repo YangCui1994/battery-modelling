@@ -1,0 +1,43 @@
+# ---- 虚拟环境（685 MB，跨机器不可移植，绝不入库）----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- 第三方二进制与解包物 ----
+# POLIDEMO.exe 是第三方发布物，体积大且非本项目代码；需要时从官方渠道获取。
+# 设为可选：如果你想提交它，删掉下面两行。
+POLIDEMO-windows/
+polidemo_py/
+
+# ---- 运行产物 ----
+output/
+*.xlsx
+*.csv
+*.log
+# results/ 里的图是刻意提交的（README 引用），不要忽略
+
+# ---- 根目录那份被锁住的重复 PDF ----
+# docs/ 下已有一份；若根目录残留副本则忽略
+/*.pdf
+
+# ---- 编辑器/系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

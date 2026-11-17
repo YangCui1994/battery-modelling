@@ -1,0 +1,12 @@
+# 统一换行符，避免 Windows 上到处 CRLF 警告
+* text=auto eol=lf
+
+# 二进制文件
+*.png binary
+*.pdf binary
+*.xlsx binary
+*.exe binary
+
+# 文档不参与语言统计
+*.md linguist-documentation
+docs/** linguist-documentation
