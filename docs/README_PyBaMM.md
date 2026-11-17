@@ -165,7 +165,12 @@ SPMe + `ec reaction limited` SEI + `swelling only` + `stress-driven` LAM，参�
 
     Q_tot(V) = Σ Q_i(V)        dQ/dV = Σ dQ/dV|_i
 
-每个区域由 PyBaMM 实算的准静态曲线（C/20 慢放，保证 dQ/dV 平滑）缩放得到。
+每个区域由 PyBaMM 实算的曲线缩放得到。
+
+> 为什么要 C/20 慢放 + 稠密输出：这是**两个独立问题**。
+> 采样不足（默认只输出 30–64 点）用 `t_interp` 解决，**与时长无关**；
+> 动力学畸变（过电位压低/偏移峰）只能用低倍率解决——实测 1C→C/20 峰位差 98 mV、
+> 峰高差 3.2 倍。缩短仿真时长对两者都无效。
 脚本 `dqdv_regions.py`，毫秒级。
 
 **实测结果**（Marquis2019，健康 Q0=0.70 Ah）：
